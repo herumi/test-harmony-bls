@@ -52,7 +52,7 @@ $(BLS512_LIB): $(OBJ_DIR)/bls_c512.o
 $(BLS384_256_LIB): $(OBJ_DIR)/bls_c384_256.o
 	$(AR) $@ $<
 
-ifneq ($(findstring $(OS),mac/mingw64),)
+ifneq ($(findstring $(OS),mac/mac-m1/mingw64),)
   COMMON_LIB=$(GMP_LIB) $(OPENSSL_LIB) -lstdc++
   BLS256_SLIB_LDFLAGS+=$(COMMON_LIB)
   BLS384_SLIB_LDFLAGS+=$(COMMON_LIB)
@@ -97,7 +97,7 @@ $(EXE_DIR)/%256_test.exe: $(OBJ_DIR)/%256_test.o $(BLS256_LIB) $(MCL_LIB)
 # sample exe links libbls256.a
 $(EXE_DIR)/%.exe: $(OBJ_DIR)/%.o $(BLS256_LIB) $(MCL_LIB)
 	$(PRE)$(CXX) $< -o $@ $(BLS256_LIB) -L$(MCL_DIR)/lib -lmcl $(LDFLAGS)
-ifeq ($(OS),mac)
+ifneq ($(findstring $(OS),mac/mac-m1),)
 	install_name_tool bin/bls_smpl.exe -change lib/libmcl.dylib $(MCL_DIR)/lib/libmcl.dylib
 endif
 
@@ -105,7 +105,7 @@ SAMPLE_EXE=$(addprefix $(EXE_DIR)/,$(SAMPLE_SRC:.cpp=.exe))
 sample: $(SAMPLE_EXE)
 
 TEST_EXE=$(addprefix $(EXE_DIR)/,$(TEST_SRC:.cpp=.exe))
-ifeq ($(OS),mac)
+ifneq ($(findstring $(OS),mac/mac-m1),)
   LIBPATH_KEY=DYLD_LIBRARY_PATH
 else
   LIBPATH_KEY=LD_LIBRARY_PATH
