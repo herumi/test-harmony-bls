@@ -4,3 +4,6 @@
 [submodule "old/mcl"]
 	path = old/mcl
 	url = https://github.com/harmony-one/mcl
+[submodule "new/bls"]
+	path = new/bls
+	url = https://github.com/herumi/bls
