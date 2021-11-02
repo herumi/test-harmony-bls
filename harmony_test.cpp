@@ -47,6 +47,28 @@ std::string toHexStr(const uint8_t *buf, size_t n)
 	return s;
 }
 
+void putHex(const blsSecretKey& sec)
+{
+	uint8_t buf[256];
+	int n = blsSecretKeySerialize(buf, sizeof(buf), &sec);
+	printf("sec=%s\n", toHexStr(buf, n).c_str());
+}
+
+void putHex(const blsPublicKey& pub)
+{
+	uint8_t buf[256];
+	int n = blsPublicKeySerialize(buf, sizeof(buf), &pub);
+	printf("pub=%s\n", toHexStr(buf, n).c_str());
+}
+
+void putHex(const blsSignature& sig)
+{
+	uint8_t buf[256];
+	int n = blsSignatureSerialize(buf, sizeof(buf), &sig);
+	printf("sig=%s\n", toHexStr(buf, n).c_str());
+}
+
+
 void test_sign_verify(cybozu::XorShift& rg)
 {
 	uint8_t secBuf[32];
@@ -58,24 +80,31 @@ void test_sign_verify(cybozu::XorShift& rg)
 		puts("err blsSecretKeySetLittleEndianMod");
 		return;
 	}
-	uint8_t buf[256];
-	int n = blsSecretKeySerialize(buf, sizeof(buf), &sec);
-	printf("sec=%s\n", toHexStr(buf, n).c_str());
+	putHex(sec);
+
 	blsPublicKey pub;
 	blsGetPublicKey(&pub, &sec);
-	n = blsPublicKeySerialize(buf, sizeof(buf), &pub);
-	printf("pub=%s\n", toHexStr(buf, n).c_str());
+	putHex(pub);
+
 	const size_t msgSize = 32;
 	uint8_t msg[msgSize];
 	rg.read(msg, msgSize);
 	printf("msg=%s\n", toHexStr(msg, msgSize).c_str());
+
 	blsSignature sig;
 	blsSign(&sig, &sec, msg, msgSize);
-	n = blsSignatureSerialize(buf, sizeof(buf), &sig);
-	printf("sig=%s\n", toHexStr(buf, n).c_str());
+	putHex(sig);
 	ret = blsVerify(&sig, &pub, msg, msgSize);
 	if (ret != 1) {
 		puts("err blsVerify");
+		return;
+	}
+
+	blsSignHash(&sig, &sec, msg, msgSize);
+	putHex(sig);
+	ret = blsVerifyHash(&sig, &pub, msg, msgSize);
+	if (ret != 1) {
+		puts("err blsVerifyHash");
 		return;
 	}
 }
@@ -93,6 +122,7 @@ int main()
 		return 1;
 	}
 #ifdef TEST_NEW
+	// compatible parameter with the old bls library
 	blsSetETHserialization(0);
 	blsSetMapToMode(0);
 	{

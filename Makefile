@@ -38,7 +38,7 @@ harmony_test_new.exe: harmony_test_new.o $(NEW_LIB)
 test: $(TARGET)
 	./harmony_test_old.exe > old.txt
 	./harmony_test_new.exe > new.txt
-	diff old.txt new.txt
+	diff -urN old.txt new.txt
 
 clean:
 	$(RM) -rf $(TARGET) *.o *.d
