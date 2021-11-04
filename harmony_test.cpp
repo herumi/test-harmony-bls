@@ -11,7 +11,7 @@
 #define MCLBN_FR_UNIT_SIZE 4
 #include <bls/bls.h>
 
-#elif defined(TEST_NEW)
+#elif defined(TEST_NEW) || defined(TEST_ETH)
 
 #ifndef BLS_ETH
 	#error "define BLS_ETH"
@@ -100,6 +100,7 @@ void test_sign_verify(cybozu::XorShift& rg)
 		return;
 	}
 
+#if 1
 	blsSignHash(&sig, &sec, msg, msgSize);
 	putHex(sig);
 	ret = blsVerifyHash(&sig, &pub, msg, msgSize);
@@ -107,24 +108,30 @@ void test_sign_verify(cybozu::XorShift& rg)
 		puts("err blsVerifyHash");
 		return;
 	}
+#endif
 }
 
 int main()
 {
 #ifdef TEST_OLD
 	fprintf(stderr, "old test\n");
-#else
+#elif defined(TEST_NEW)
 	fprintf(stderr, "new test\n");
+#elif defined(TEST_ETH)
+	fprintf(stderr, "eth test\n");
+#else
+	#error "TEST error"
 #endif
 	int ret = blsInit(MCL_BLS12_381, MCLBN_COMPILED_TIME_VAR);
 	if (ret != 0) {
 		puts("err blsInit");
 		return 1;
 	}
-#ifdef TEST_NEW
+#if defined(TEST_NEW) || defined(TEST_ETH)
 	// compatible parameter with the old bls library
 	blsSetETHserialization(0);
 	blsSetMapToMode(0);
+	blsSetETHmode(0);
 	{
 		const char *genStr = "1 4f58f3d9ee829f9a853f80b0e32c2981be883a537f0c21ad4af17be22e6e9959915ec21b7f9d8cc4c7315f31f3600e5 1212110eb10dbc575bccc44dcd77400f38282c4728b5efac69c0b4c9011bd27b8ed608acd81f027039216a291ac636a8";
 		blsPublicKey gen;
